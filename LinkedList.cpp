@@ -1,10 +1,12 @@
 #include <iostream>
+#include <memory>
 template<typename T>
 class LinkedList{
     struct Node {
         T value;
         Node *next;
         int index;
+        std::weak_ptr<Node> prev;
     };
 
     int nodeIndex;
@@ -40,15 +42,6 @@ public:
         head = head->next;
         delete n;
         return ret;
-    }
-
-    // TODO
-    void forEach(void <lambda(int)> fn) const {
-        Node * node = head;
-        while (node) {
-            fn(*node);
-            node = node->next;
-        }
     }
 
     T operator[](int &x) const {
