@@ -13,15 +13,16 @@ class DLL {
         std::shared_ptr<Node> next;
         std::weak_ptr<Node> prev;
         Node(T val) : value(val), next(nullptr) {}
-    }
+        Node() {}
+    };
 
     std::shared_ptr<Node> head;
     std::shared_ptr<Node> tail;
 
 public:
     DLL(T val) {
-        head = std::make_shared<Node>(val);
-        tail = head;
+        head = std::make_shared<Node>();
+        tail = std::make_shared<Node>();
     }
 
     ~DLL() {
@@ -34,18 +35,30 @@ public:
         node->prev = tail;
         tail->next = node;
         nodes++;
+        if (nodes == 1) head = node;    
     }
 
     T pop() {
+        if (tail == nullptr) throw ("No value inside list");
         T t_val = tail->value;
         tail = tail->prev;
         tail->next = nullptr;
+        nodes--;
         return t_val;
     }
 
-    template<typename I, typename R>
-    R forEach(I&& lambda) {
-        std::shard_ptr<Node> p_node = std::make_shared<Node>(head);
+    T index(int index) const {
+        if (index > nodes-1 || index < 0) throw("Index out of bounds");
+        std::shared_ptr<Node> p_node;
+        while (index --> 0) {
+            p_node = p_node->next;
+        }
+        return p_node->value;
+    }
+
+    template<typename R, typename I>
+    R forEach(I&& lambda) const {
+        std::shared_ptr<Node> p_node = std::make_shared<Node>(this->head);
         for (unsigned int x = 0; x < nodes; x++) {
             lambda(*p_node);
             p_node = p_node->next;
@@ -53,21 +66,16 @@ public:
     }
 
     void operator<<(T val) {
-        push(val);
+        this->push(val);
     }
 
     T operator[](int index) const {
-        if (index > nodes-1) throw("Index out of bounds");
-        std::shared_ptr<Node> p_node;
-        while (index) {
-            p_node = p_node->next;
-        }
-        return p_node->val;
+        this->index(index);
     }
 
 };
 
 auto main() -> int {
-    auto list = *(new DLL<int>(5));
-    std::cout << list[0];
+    auto list = new DLL<int>(5);
+    std::cout << list->index(0);
 }
